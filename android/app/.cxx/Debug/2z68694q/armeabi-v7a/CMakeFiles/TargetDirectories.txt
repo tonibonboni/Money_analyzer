@@ -1,0 +1,2 @@
+C:/Users/Antoaneta Kirova/Desktop/flutter projects/money_analyzer/android/app/.cxx/Debug/2z68694q/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Antoaneta Kirova/Desktop/flutter projects/money_analyzer/android/app/.cxx/Debug/2z68694q/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "C:\\Users\\Antoaneta Kirova\\flutter\\packages\\flutter_tools\\gradle\\src\\main\\groovy\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\Antoaneta Kirova\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "C:\\Users\\Antoaneta Kirova\\Desktop\\flutter projects\\money_analyzer\\android\\app\\.cxx\\RelWithDebInfo\\3x5hg3w2\\armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\Antoaneta Kirova\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "C:\\Users\\Antoaneta Kirova\\Desktop\\flutter projects\\money_analyzer\\android\\app\\.cxx\\RelWithDebInfo\\3x5hg3w2\\armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
