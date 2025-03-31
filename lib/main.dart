@@ -126,7 +126,7 @@ class _FirstPageState extends State<Firstpage> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const AndroidCompact1())
+                            MaterialPageRoute(builder: (context) => const ReceiptScanner())
                           );
                         }
                       )

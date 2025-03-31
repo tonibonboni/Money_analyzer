@@ -1,65 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:receipt_reader/models/order.dart';
 
-class AndroidCompact2 extends StatefulWidget {
-  final List<String> ocrLines;
-  const AndroidCompact2({Key? key, required this.ocrLines}) : super(key: key);
+class OrderCheckboxList extends StatefulWidget {
+  final Order order;
+  const OrderCheckboxList({Key? key, required this.order}) : super(key: key);
 
   @override
-  _AndroidCompact2State createState() => _AndroidCompact2State();
+  _OrderCheckboxListState createState() => _OrderCheckboxListState();
 }
 
-class _AndroidCompact2State extends State<AndroidCompact2> {
-  late List<String> items;
+class _OrderCheckboxListState extends State<OrderCheckboxList> {
   late List<bool> checked;
 
   @override
   void initState() {
     super.initState();
-    items = filterAndFormatOcrText(widget.ocrLines);
-    checked = List<bool>.filled(items.length, false);
-  }
-
-  // Филтриране и форматиране на OCR текста
-  List<String> filterAndFormatOcrText(List<String> lines) {
-    List<String> formattedList = [];
-    RegExp regex = RegExp(r"(.+?)\s+(\d+[.,]?\d*)\s?(USD|EUR|GBP|\$|€|£)?", caseSensitive: false);
-    List<String> unwantedKeywords = ["TOTAL", "TAX", "SHOP", "ADDRESS", "STORE", "INVOICE", "DATE", "TIME"];
-
-    for (var line in lines) {
-      // Пропускаме редове с нежелани думи
-      if (unwantedKeywords.any((word) => line.toUpperCase().contains(word))) {
-        continue;
-      }
-      
-      var match = regex.firstMatch(line);
-      if (match != null) {
-        String item = match.group(1)!.trim();  
-        String price = match.group(2)!.trim(); 
-        String currency = match.group(3) ?? "";
-        formattedList.add("$item - $price $currency".trim());
-      }
-    }
-
-    return formattedList.isNotEmpty ? formattedList : [];
+    // Създаваме списък от булеви стойности за всеки артикул
+    checked = List<bool>.filled(widget.order.items.length, false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Избери артикули'),
+        backgroundColor: Colors.teal,
+      ),
       body: Container(
-        width: 360,
-        height: 800,
-        decoration: ShapeDecoration(
+        width: double.infinity,
+        height: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
           color: const Color(0xFF86BBB2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 50, bottom: 20),
+              padding: EdgeInsets.only(top: 20, bottom: 20),
               child: Text(
-                'Select Items:',
-                style: TextStyle(color: Color(0xFF422655), fontSize: 24, fontWeight: FontWeight.bold),
+                'Избери артикули:',
+                style: TextStyle(
+                  color: Color(0xFF422655),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Expanded(
@@ -71,8 +56,13 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: ListView.builder(
-                  itemCount: items.length,
+                  itemCount: widget.order.items.length,
                   itemBuilder: (context, index) {
+                    final item = widget.order.items[index];
+                    // Изчисляваме общата цена: количество * цена
+                    double totalItemPrice = item.quantity * item.price;
+                    String formattedText =
+                        '${item.quantity}x ${item.name} - \$${totalItemPrice.toStringAsFixed(2)}';
                     return CheckboxListTile(
                       value: checked[index],
                       onChanged: (bool? newValue) {
@@ -81,8 +71,11 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
                         });
                       },
                       title: Text(
-                        items[index],
-                        style: const TextStyle(color: Color(0xFF422655), fontSize: 16),
+                        formattedText,
+                        style: const TextStyle(
+                          color: Color(0xFF422655),
+                          fontSize: 16,
+                        ),
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
                     );

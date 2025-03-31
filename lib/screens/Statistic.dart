@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:money_analyzer/screens/SideBarDiagram.dart'; // Препоръчвам да проверите пътя
+import 'SideBarDiagram.dart';
 
 class Statistic extends StatefulWidget {
   const Statistic({super.key});
