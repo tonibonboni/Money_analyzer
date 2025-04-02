@@ -15,14 +15,46 @@ class ReceiptItem {
     required this.date,
   });
 
-  // Create from JSON for storage
+  // Create from JSON for storage with improved error handling
   factory ReceiptItem.fromJson(Map<String, dynamic> json) {
+    // Safe date parsing
+    DateTime parseDate() {
+      try {
+        return json['date'] != null 
+            ? DateTime.parse(json['date'] as String)
+            : DateTime.now();
+      } catch (e) {
+        print('Error parsing date: $e');
+        return DateTime.now();
+      }
+    }
+    
+    // Safe price parsing
+    double parsePrice() {
+      try {
+        if (json['price'] == null) return 0.0;
+        
+        if (json['price'] is int) {
+          return (json['price'] as int).toDouble();
+        } else if (json['price'] is double) {
+          return json['price'] as double;
+        } else if (json['price'] is String) {
+          return double.tryParse((json['price'] as String).replaceAll(',', '.')) ?? 0.0;
+        } else {
+          return 0.0;
+        }
+      } catch (e) {
+        print('Error parsing price: $e');
+        return 0.0;
+      }
+    }
+    
     return ReceiptItem(
-      name: json['name'] ?? '',
-      price: json['price'] != null ? (json['price'] is int ? (json['price'] as int).toDouble() : json['price'] as double) : 0.0,
-      currency: json['currency'] ?? '',
-      category: json['category'] ?? '',
-      date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      name: json['name'] as String? ?? 'Unknown item',
+      price: parsePrice(),
+      currency: json['currency'] as String? ?? '',
+      category: json['category'] as String? ?? 'Other',
+      date: parseDate(),
     );
   }
 

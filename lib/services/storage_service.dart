@@ -5,67 +5,121 @@ import '../models/receipt_item.dart';
 class StorageService {
   static const String _storageKey = 'receipt_items';
 
-  // Save a list of receipt items
+  // Save a list of receipt items with error handling
   Future<void> saveReceiptItems(List<ReceiptItem> items) async {
-    final prefs = await SharedPreferences.getInstance();
-    
-    // Get existing items
-    List<ReceiptItem> existingItems = await getReceiptItems();
-    
-    // Add new items
-    existingItems.addAll(items);
-    
-    // Convert to JSON
-    List<String> jsonItems = existingItems.map((item) => jsonEncode(item.toJson())).toList();
-    
-    // Save
-    await prefs.setStringList(_storageKey, jsonItems);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Get existing items
+      List<ReceiptItem> existingItems = await getReceiptItems();
+      
+      // Add new items
+      existingItems.addAll(items);
+      
+      // Convert to JSON with error handling
+      List<String> jsonItems = [];
+      for (var item in existingItems) {
+        try {
+          jsonItems.add(jsonEncode(item.toJson()));
+        } catch (e) {
+          print('Error encoding item: $e');
+          // Skip invalid items
+        }
+      }
+      
+      // Save
+      await prefs.setStringList(_storageKey, jsonItems);
+    } catch (e) {
+      print('Error saving receipt items: $e');
+      throw Exception('Failed to save items: $e');
+    }
   }
 
-  // Get all receipt items
+  // Get all receipt items with error handling
   Future<List<ReceiptItem>> getReceiptItems() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonItems = prefs.getStringList(_storageKey) ?? [];
-    
-    return jsonItems
-        .map((jsonItem) => ReceiptItem.fromJson(jsonDecode(jsonItem)))
-        .toList();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonItems = prefs.getStringList(_storageKey) ?? [];
+      
+      List<ReceiptItem> items = [];
+      for (var jsonItem in jsonItems) {
+        try {
+          items.add(ReceiptItem.fromJson(jsonDecode(jsonItem)));
+        } catch (e) {
+          print('Error decoding item: $e');
+          // Skip invalid items
+        }
+      }
+      
+      return items;
+    } catch (e) {
+      print('Error retrieving receipt items: $e');
+      return []; // Return empty list on error
+    }
   }
 
-  // Get items by category
+  // Get items by category with error handling
   Future<List<ReceiptItem>> getItemsByCategory(String category) async {
-    List<ReceiptItem> allItems = await getReceiptItems();
-    return allItems.where((item) => item.category == category).toList();
+    try {
+      List<ReceiptItem> allItems = await getReceiptItems();
+      return allItems.where((item) => item.category == category).toList();
+    } catch (e) {
+      print('Error retrieving items by category: $e');
+      return []; // Return empty list on error
+    }
   }
 
   // Get items sorted by date (newest first)
   List<ReceiptItem> sortItemsByDate(List<ReceiptItem> items) {
-    items.sort((a, b) => b.date.compareTo(a.date));
+    try {
+      items.sort((a, b) => b.date.compareTo(a.date));
+    } catch (e) {
+      print('Error sorting items by date: $e');
+      // Leave items unsorted in case of error
+    }
     return items;
   }
   
-  // Get items for a specific month and year
+  // Get items for a specific month and year with error handling
   Future<List<ReceiptItem>> getItemsByMonth(String category, int month, int year) async {
-    List<ReceiptItem> categoryItems = await getItemsByCategory(category);
-    
-    return categoryItems.where((item) => 
-      item.date.month == month && item.date.year == year).toList();
+    try {
+      List<ReceiptItem> categoryItems = await getItemsByCategory(category);
+      
+      return categoryItems.where((item) => 
+        item.date.month == month && item.date.year == year).toList();
+    } catch (e) {
+      print('Error retrieving items by month: $e');
+      return []; // Return empty list on error
+    }
   }
   
-  // Delete an item
+  // Delete an item with error handling
   Future<void> deleteItem(ReceiptItem itemToDelete) async {
-    List<ReceiptItem> allItems = await getReceiptItems();
-    
-    allItems.removeWhere((item) => 
-      item.name == itemToDelete.name && 
-      item.price == itemToDelete.price && 
-      item.date.isAtSameMomentAs(itemToDelete.date));
-    
-    // Convert to JSON
-    List<String> jsonItems = allItems.map((item) => jsonEncode(item.toJson())).toList();
-    
-    // Save
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_storageKey, jsonItems);
+    try {
+      List<ReceiptItem> allItems = await getReceiptItems();
+      
+      allItems.removeWhere((item) => 
+        item.name == itemToDelete.name && 
+        item.price == itemToDelete.price && 
+        item.date.isAtSameMomentAs(itemToDelete.date));
+      
+      // Convert to JSON with error handling
+      List<String> jsonItems = [];
+      for (var item in allItems) {
+        try {
+          jsonItems.add(jsonEncode(item.toJson()));
+        } catch (e) {
+          print('Error encoding item during deletion: $e');
+          // Skip invalid items
+        }
+      }
+      
+      // Save
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_storageKey, jsonItems);
+    } catch (e) {
+      print('Error deleting item: $e');
+      throw Exception('Failed to delete item: $e');
+    }
   }
 } 
