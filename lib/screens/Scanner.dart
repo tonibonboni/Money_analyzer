@@ -15,7 +15,7 @@ class ReceiptScanner extends StatelessWidget {
       ),
       body: Center(
         child: ReceiptUploader(
-          geminiApi: 'YOUR_GEMINI_API_KEY', // Заменете с вашия API ключ или URL, ако е необходим
+          geminiApi: 'AIzaSyBasOkoE5mOfZcLV7VMfn7kPaAgR1eZpo0', // Заменете с вашия API ключ или URL, ако е необходим
           listOfCategories: <String>["Храна", "Напитки", "Други"],
           onAdd: (Order order) {
             // При успешно разчитане, пренасочваме потребителя към екрана с избора на артикули
