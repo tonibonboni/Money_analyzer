@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  file:
+    dependency: transitive
+    description:
+      name: file
+      sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.1"
   file_selector_linux:
     dependency: transitive
     description:
@@ -154,10 +162,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
+      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "2.0.3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -184,6 +192,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.6"
+  google_ml_kit:
+    dependency: "direct main"
+    description:
+      name: google_ml_kit
+      sha256: "52a89712eeccb80a42a7de78d813ca7cc1988fb21d6e7011403ac627ce104eab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.19.0"
+  google_mlkit_barcode_scanning:
+    dependency: transitive
+    description:
+      name: google_mlkit_barcode_scanning
+      sha256: "5852d1daa007a05b33f99e3e3fa34227c49d9c41bc92a85d820666a57fd5c35f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
   google_mlkit_commons:
     dependency: transitive
     description:
@@ -192,6 +216,86 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.0"
+  google_mlkit_digital_ink_recognition:
+    dependency: transitive
+    description:
+      name: google_mlkit_digital_ink_recognition
+      sha256: "11ea94f71062ad2a784aeda7716b16a0e641878b0ddfaa930be23bcff90a6bd7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
+  google_mlkit_entity_extraction:
+    dependency: transitive
+    description:
+      name: google_mlkit_entity_extraction
+      sha256: "36e1f5b053c56a4d2919931d75bd73dc37e4c8b68f8e8ebeb2aa99b1bdba4de2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.0"
+  google_mlkit_face_detection:
+    dependency: transitive
+    description:
+      name: google_mlkit_face_detection
+      sha256: "65988405c884fd84a4ccc8bded7b5e3e4c33362f6f4eaaa94818bdaaba7bab7d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.0"
+  google_mlkit_face_mesh_detection:
+    dependency: transitive
+    description:
+      name: google_mlkit_face_mesh_detection
+      sha256: aa2659c03f46cf69510a998e0bd14f23b9d3c7b0c9b1fe1050656ad80d6e24bd
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
+  google_mlkit_image_labeling:
+    dependency: transitive
+    description:
+      name: google_mlkit_image_labeling
+      sha256: "9251c91c9281378a4716bb96dc0d3c9f54c0f809577aaba47ef24c52941dc859"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
+  google_mlkit_language_id:
+    dependency: transitive
+    description:
+      name: google_mlkit_language_id
+      sha256: "80446a42cf5f9daf39f28489b2b38ce883aa9e3daadd73e1fe1591022507248a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.0"
+  google_mlkit_object_detection:
+    dependency: transitive
+    description:
+      name: google_mlkit_object_detection
+      sha256: "56f196c03a1a7b0986efac0e48ab4b82a35645de3f1f2eebc08e308ad93db469"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.0"
+  google_mlkit_pose_detection:
+    dependency: transitive
+    description:
+      name: google_mlkit_pose_detection
+      sha256: "05c4a6eaab12e575a55c83b357d76c1f694be5caf1dc8d5229a18327712f6685"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
+  google_mlkit_selfie_segmentation:
+    dependency: transitive
+    description:
+      name: google_mlkit_selfie_segmentation
+      sha256: f2ff57b9d5ea0029a31ec14d038ff64d35c19b15de3b01bd517513f8c23cb779
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
+  google_mlkit_smart_reply:
+    dependency: transitive
+    description:
+      name: google_mlkit_smart_reply
+      sha256: "5a54de1b38e65a476c05605440691043befd3444570457d85f744c71154ef038"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.0"
   google_mlkit_text_recognition:
     dependency: "direct main"
     description:
@@ -200,6 +304,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.0"
+  google_mlkit_translation:
+    dependency: transitive
+    description:
+      name: google_mlkit_translation
+      sha256: "826cfe74fbee8f455d987949782e1873f50d79c1f2a971848e3f8dde851290d4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.0"
   http:
     dependency: transitive
     description:
@@ -288,6 +400,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.18.1"
   json_annotation:
     dependency: transitive
     description:
@@ -324,10 +444,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
+      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.1"
+    version: "2.1.1"
   matcher:
     dependency: transitive
     description:
@@ -456,6 +576,62 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.7"
+  shared_preferences:
+    dependency: "direct main"
+    description:
+      name: shared_preferences
+      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.3"
+  shared_preferences_android:
+    dependency: transitive
+    description:
+      name: shared_preferences_android
+      sha256: "3ec7210872c4ba945e3244982918e502fa2bfb5230dff6832459ca0e1879b7ad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.8"
+  shared_preferences_foundation:
+    dependency: transitive
+    description:
+      name: shared_preferences_foundation
+      sha256: "6a52cfcdaeac77cad8c97b539ff688ccfc458c007b4db12be584fbe5c0e49e03"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.4"
+  shared_preferences_linux:
+    dependency: transitive
+    description:
+      name: shared_preferences_linux
+      sha256: "580abfd40f415611503cae30adf626e6656dfb2f0cee8f465ece7b6defb40f2f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
+  shared_preferences_platform_interface:
+    dependency: transitive
+    description:
+      name: shared_preferences_platform_interface
+      sha256: "57cbf196c486bc2cf1f02b85784932c6094376284b3ad5779d1b1c6c6a816b80"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
+  shared_preferences_web:
+    dependency: transitive
+    description:
+      name: shared_preferences_web
+      sha256: c49bd060261c9a3f0ff445892695d6212ff603ef3115edbb448509d407600019
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.3"
+  shared_preferences_windows:
+    dependency: transitive
+    description:
+      name: shared_preferences_windows
+      sha256: "94ef0f72b2d71bc3e700e025db3710911bd51a71cefb65cc609dd0d9a982e3c1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
   sky_engine:
     dependency: transitive
     description: flutter
