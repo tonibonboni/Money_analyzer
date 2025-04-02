@@ -1,213 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:receipt_reader/receipt_reader.dart';
 import 'package:receipt_reader/models/order.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'dart:io';
-import 'CheckBoxList.dart';
+import 'CheckBoxList.dart'; // Импортира OrderCheckboxList от CheckBoxList.dart
 
-class AndroidCompact1 extends StatefulWidget {
-  const AndroidCompact1({super.key});
-
-  @override
-  _AndroidCompact1State createState() => _AndroidCompact1State();
-}
-
-class _AndroidCompact1State extends State<AndroidCompact1> {
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
-  bool _isProcessing = false;
-
-  // Function for reading and cleaning OCR text
-  Future<List<String>> _extractLines(File imageFile) async {
-    try {
-      setState(() {
-        _isProcessing = true;
-      });
-      
-      final inputImage = InputImage.fromFile(imageFile);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
-      await textRecognizer.close();
-
-      List<String> lines = [];
-      for (final block in recognizedText.blocks) {
-        for (final line in block.lines) {
-          String cleanedLine = line.text.replaceAll(RegExp(r'[^\w\s\.,:]'), '').trim();
-          if (cleanedLine.isNotEmpty) {
-            lines.add(cleanedLine);
-          }
-        }
-      }
-      
-      return lines;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error processing image: $e')),
-      );
-      return [];
-    } finally {
-      setState(() {
-        _isProcessing = false;
-      });
-    }
-  }
-
-  Future<void> _openCamera() async {
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        final imageFile = File(pickedFile.path);
-        setState(() {
-          _image = imageFile;
-        });
-
-        List<String> ocrLines = await _extractLines(imageFile);
-        
-        // Only navigate if we have at least one line
-        if (ocrLines.isNotEmpty) {
-          if (!mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AndroidCompact2(ocrLines: ocrLines),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No text was recognized in the image')),
-          );
-        }
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error capturing image: $e')),
-      );
-    }
-  }
-  
-  Future<void> _pickFromGallery() async {
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        final imageFile = File(pickedFile.path);
-        setState(() {
-          _image = imageFile;
-        });
-
-        List<String> ocrLines = await _extractLines(imageFile);
-        
-        // Only navigate if we have at least one line
-        if (ocrLines.isNotEmpty) {
-          if (!mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AndroidCompact2(ocrLines: ocrLines),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No text was recognized in the image')),
-          );
-        }
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error selecting image: $e')),
-      );
-    }
-  }
+class ReceiptScanner extends StatelessWidget {
+  const ReceiptScanner({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            width: 360,
-            height: 800,
-            padding: const EdgeInsets.only(top: 132, left: 31, right: 31, bottom: 48),
-            decoration: ShapeDecoration(
-              color: const Color(0xFF86BBB2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 298,
-                  height: 537,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(20),
-                    image: _image != null ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover) : null,
-                  ),
-                  child: _isProcessing 
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF422655),
-                          ),
-                        )
-                      : _image == null 
-                          ? const Center(
-                              child: Text(
-                                'Take a photo of a receipt',
-                                style: TextStyle(
-                                  color: Color(0xFF422655),
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          : null,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Camera button
-                    GestureDetector(
-                      onTap: _isProcessing ? null : _openCamera,
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF422655),
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(width: 1, color: const Color(0xFF86BBB2)),
-                        ),
-                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    // Gallery button
-                    GestureDetector(
-                      onTap: _isProcessing ? null : _pickFromGallery,
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF422655),
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(width: 1, color: const Color(0xFF86BBB2)),
-                        ),
-                        child: const Icon(Icons.photo_library, color: Colors.white, size: 30),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+      appBar: AppBar(
+        title: const Text('Receipt Scanner'),
+        backgroundColor: const Color(0xFF422655),
+      ),
+      body: Center(
+        child: ReceiptUploader(
+          geminiApi: 'AIzaSyBasOkoE5mOfZcLV7VMfn7kPaAgR1eZpo0', // Your API key
+          listOfCategories: <String>["Food", "Transport", "Entertainment", "Shopping", "Bills", "Other"],
+          onAdd: (Order order) {
+            // Convert order items to OCR lines format
+            List<String> ocrLines = _convertOrderToOcrLines(order);
+            // Navigate to our new CheckBoxList implementation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AndroidCompact2(ocrLines: ocrLines),
+              ),
+            );
+          },
+          // Optional styling parameters:
+          actionButtonStyle: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF422655),
+            textStyle: const TextStyle(fontSize: 16),
           ),
-        ],
+          orderSummaryTextStyle: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          extractedDataTextStyle:
+              const TextStyle(fontSize: 14, color: Colors.grey),
+          imagePreviewHeight: 250.0,
+          padding: const EdgeInsets.all(20.0),
+        ),
       ),
     );
   }
+  
+  // Helper method to convert Order to ocrLines format for our CheckBoxList
+  List<String> _convertOrderToOcrLines(Order order) {
+    List<String> lines = [];
+    
+    for (var item in order.items) {
+      // Format: "Item name - price currency"
+      double totalPrice = item.price * item.quantity;
+      String formattedLine = "${item.name} - ${totalPrice.toStringAsFixed(2)} \$";
+      lines.add(formattedLine);
+    }
+    
+    return lines;
+  }
 }
 
-/// Този екран визуализира подробностите на разчетената касова бележка.
+/// This screen will not be used as we're using our new CheckBoxList implementation
+/// But kept for reference or fallback use
 class ReceiptDetailsScreen extends StatelessWidget {
   final Order order;
 
@@ -215,11 +71,26 @@ class ReceiptDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Тук показваме само основната информация: списък с артикули и общата сума.
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receipt Details'),
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color(0xFF422655),
+        actions: [
+          // Add a button to proceed to our new categorization flow
+          IconButton(
+            icon: const Icon(Icons.category),
+            tooltip: 'Categorize Items',
+            onPressed: () {
+              List<String> ocrLines = _convertOrderToOcrLines(order);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AndroidCompact2(ocrLines: ocrLines),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -228,14 +99,14 @@ class ReceiptDetailsScreen extends StatelessWidget {
           children: [
             // Заглавна секция за данни от касовата бележка
             const Text(
-              'Данни за касовата бележка:',
+              'Receipt Data:',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             // Можете да добавите допълнителни детайли, ако Order обектът ги предоставя.
             const SizedBox(height: 20),
             const Text(
-              'Артикули:',
+              'Items:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Expanded(
@@ -259,7 +130,7 @@ class ReceiptDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Общо:',
+                    'Total:',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   // Използваме полето total, което съществува според примера
@@ -270,9 +141,42 @@ class ReceiptDetailsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            // Add button to proceed to categorization
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF422655),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                onPressed: () {
+                  List<String> ocrLines = _convertOrderToOcrLines(order);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AndroidCompact2(ocrLines: ocrLines),
+                    ),
+                  );
+                },
+                child: const Text('Categorize Items', style: TextStyle(color: Colors.white)),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+  
+  // Helper method to convert Order to ocrLines format for our CheckBoxList
+  List<String> _convertOrderToOcrLines(Order order) {
+    List<String> lines = [];
+    
+    for (var item in order.items) {
+      // Format: "Item name - price currency"
+      double totalPrice = item.price * item.quantity;
+      String formattedLine = "${item.name} - ${totalPrice.toStringAsFixed(2)} \$";
+      lines.add(formattedLine);
+    }
+    
+    return lines;
   }
 }
