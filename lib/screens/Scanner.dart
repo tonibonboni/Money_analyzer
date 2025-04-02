@@ -1,46 +1,206 @@
 import 'package:flutter/material.dart';
-import 'package:receipt_reader/receipt_reader.dart';
-import 'package:receipt_reader/models/order.dart';
-import 'CheckBoxList.dart'; // Импортира OrderCheckboxList от CheckBoxList.dart
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'dart:io';
+import 'CheckBoxList.dart';
 
-class ReceiptScanner extends StatelessWidget {
-  const ReceiptScanner({super.key});
+class AndroidCompact1 extends StatefulWidget {
+  const AndroidCompact1({super.key});
+
+  @override
+  _AndroidCompact1State createState() => _AndroidCompact1State();
+}
+
+class _AndroidCompact1State extends State<AndroidCompact1> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+  bool _isProcessing = false;
+
+  // Function for reading and cleaning OCR text
+  Future<List<String>> _extractLines(File imageFile) async {
+    try {
+      setState(() {
+        _isProcessing = true;
+      });
+      
+      final inputImage = InputImage.fromFile(imageFile);
+      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+      await textRecognizer.close();
+
+      List<String> lines = [];
+      for (final block in recognizedText.blocks) {
+        for (final line in block.lines) {
+          String cleanedLine = line.text.replaceAll(RegExp(r'[^\w\s\.,:]'), '').trim();
+          if (cleanedLine.isNotEmpty) {
+            lines.add(cleanedLine);
+          }
+        }
+      }
+      
+      return lines;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error processing image: $e')),
+      );
+      return [];
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
+  }
+
+  Future<void> _openCamera() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final imageFile = File(pickedFile.path);
+        setState(() {
+          _image = imageFile;
+        });
+
+        List<String> ocrLines = await _extractLines(imageFile);
+        
+        // Only navigate if we have at least one line
+        if (ocrLines.isNotEmpty) {
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AndroidCompact2(ocrLines: ocrLines),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No text was recognized in the image')),
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error capturing image: $e')),
+      );
+    }
+  }
+  
+  Future<void> _pickFromGallery() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final imageFile = File(pickedFile.path);
+        setState(() {
+          _image = imageFile;
+        });
+
+        List<String> ocrLines = await _extractLines(imageFile);
+        
+        // Only navigate if we have at least one line
+        if (ocrLines.isNotEmpty) {
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AndroidCompact2(ocrLines: ocrLines),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No text was recognized in the image')),
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error selecting image: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Receipt Scanner'),
-        backgroundColor: Colors.teal,
-      ),
-      body: Center(
-        child: ReceiptUploader(
-          geminiApi: 'AIzaSyBasOkoE5mOfZcLV7VMfn7kPaAgR1eZpo0', // Заменете с вашия API ключ или URL, ако е необходим
-          listOfCategories: <String>["Храна", "Напитки", "Други"],
-          onAdd: (Order order) {
-            // При успешно разчитане, пренасочваме потребителя към екрана с избора на артикули
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ReceiptDetailsScreen(order: order),
-              ),
-            );
-          },
-          // Опционални параметри за стилизиране:
-          actionButtonStyle: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            textStyle: const TextStyle(fontSize: 16),
+      body: Column(
+        children: [
+          Container(
+            width: 360,
+            height: 800,
+            padding: const EdgeInsets.only(top: 132, left: 31, right: 31, bottom: 48),
+            decoration: ShapeDecoration(
+              color: const Color(0xFF86BBB2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 298,
+                  height: 537,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD9D9D9),
+                    borderRadius: BorderRadius.circular(20),
+                    image: _image != null ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover) : null,
+                  ),
+                  child: _isProcessing 
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF422655),
+                          ),
+                        )
+                      : _image == null 
+                          ? const Center(
+                              child: Text(
+                                'Take a photo of a receipt',
+                                style: TextStyle(
+                                  color: Color(0xFF422655),
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : null,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Camera button
+                    GestureDetector(
+                      onTap: _isProcessing ? null : _openCamera,
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF422655),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(width: 1, color: const Color(0xFF86BBB2)),
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    // Gallery button
+                    GestureDetector(
+                      onTap: _isProcessing ? null : _pickFromGallery,
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF422655),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(width: 1, color: const Color(0xFF86BBB2)),
+                        ),
+                        child: const Icon(Icons.photo_library, color: Colors.white, size: 30),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          orderSummaryTextStyle: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          extractedDataTextStyle:
-              const TextStyle(fontSize: 14, color: Colors.grey),
-          imagePreviewHeight: 250.0,
-          padding: const EdgeInsets.all(20.0),
-        ),
+        ],
       ),
     );
   }

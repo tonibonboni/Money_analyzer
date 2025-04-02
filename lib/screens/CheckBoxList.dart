@@ -14,7 +14,7 @@ class AndroidCompact2 extends StatefulWidget {
 class _AndroidCompact2State extends State<AndroidCompact2> {
   late List<String> items;
   late List<bool> checked;
-  String selectedCategory = CategoryUtils.getPredefinedCategories().first;
+  late List<String> selectedCategories;
   final StorageService _storageService = StorageService();
   bool isSaving = false;
 
@@ -23,6 +23,11 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
     super.initState();
     items = filterAndFormatOcrText(widget.ocrLines);
     checked = List<bool>.filled(items.length, false);
+    // Initialize a category for each item (defaulting to 'Food')
+    selectedCategories = List<String>.filled(
+      items.length, 
+      CategoryUtils.getPredefinedCategories().first
+    );
   }
 
   // Filtering and formatting OCR text
@@ -74,7 +79,7 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
               name: name,
               price: price,
               currency: currency,
-              category: selectedCategory,
+              category: selectedCategories[i], // Use the selected category for this item
               date: DateTime.now(),
             ));
           }
@@ -92,19 +97,50 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
     
     List<ReceiptItem> itemsToSave = _prepareItemsForSaving();
     
+    if (itemsToSave.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one item to save')),
+      );
+      setState(() {
+        isSaving = false;
+      });
+      return;
+    }
+    
     await _storageService.saveReceiptItems(itemsToSave);
     
     setState(() {
       isSaving = false;
     });
     
+    // Group items by category for the success message
+    Map<String, int> categoryCount = {};
+    for (var item in itemsToSave) {
+      categoryCount[item.category] = (categoryCount[item.category] ?? 0) + 1;
+    }
+    
+    String message = categoryCount.entries
+        .map((e) => '${e.value} items to ${e.key}')
+        .join(', ');
+    
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${itemsToSave.length} items saved to $selectedCategory')),
+      SnackBar(content: Text('Saved: $message')),
     );
     
     // Navigate back
     Navigator.pop(context);
+  }
+  
+  // Select all items
+  void _selectAll(bool? value) {
+    if (value != null) {
+      setState(() {
+        for (int i = 0; i < checked.length; i++) {
+          checked[i] = value;
+        }
+      });
+    }
   }
 
   @override
@@ -122,53 +158,50 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
             const Padding(
               padding: EdgeInsets.only(top: 50, bottom: 10),
               child: Text(
-                'Select Items:',
+                'Select Items',
                 style: TextStyle(color: Color(0xFF422655), fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            // Category dropdown
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: selectedCategory,
-                  items: CategoryUtils.getPredefinedCategories().map((String category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Row(
-                        children: [
-                          Icon(
-                            CategoryUtils.getCategoryIcon(category),
-                            color: CategoryUtils.getCategoryColor(category),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            category,
-                            style: const TextStyle(color: Color(0xFF422655)),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedCategory = newValue;
-                      });
-                    }
-                  },
-                ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Select items and choose a category for each',
+                style: TextStyle(color: Color(0xFF422655), fontSize: 14),
+                textAlign: TextAlign.center,
               ),
             ),
+            const SizedBox(height: 10),
+            
+            // Select all checkbox
+            if (items.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: checked.every((element) => element == true),
+                      onChanged: _selectAll,
+                      activeColor: const Color(0xFF422655),
+                    ),
+                    const Text(
+                      'Select All',
+                      style: TextStyle(
+                        color: Color(0xFF422655),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            
             Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -181,18 +214,76 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
                   : ListView.builder(
                       itemCount: items.length,
                       itemBuilder: (context, index) {
-                        return CheckboxListTile(
-                          value: checked[index],
-                          onChanged: (bool? newValue) {
-                            setState(() {
-                              checked[index] = newValue ?? false;
-                            });
-                          },
-                          title: Text(
-                            items[index],
-                            style: const TextStyle(color: Color(0xFF422655), fontSize: 16),
+                        return Card(
+                          elevation: 1,
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Column(
+                              children: [
+                                // Item name and checkbox
+                                CheckboxListTile(
+                                  value: checked[index],
+                                  onChanged: (bool? newValue) {
+                                    setState(() {
+                                      checked[index] = newValue ?? false;
+                                    });
+                                  },
+                                  title: Text(
+                                    items[index],
+                                    style: const TextStyle(color: Color(0xFF422655), fontSize: 16),
+                                  ),
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                ),
+                                
+                                // Only show category dropdown if item is checked
+                                if (checked[index])
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 72.0, right: 16.0, bottom: 8.0),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.grey[300]!),
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          isExpanded: true,
+                                          value: selectedCategories[index],
+                                          items: CategoryUtils.getPredefinedCategories().map((String category) {
+                                            return DropdownMenuItem<String>(
+                                              value: category,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    CategoryUtils.getCategoryIcon(category),
+                                                    color: CategoryUtils.getCategoryColor(category),
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    category,
+                                                    style: const TextStyle(color: Color(0xFF422655)),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (String? newValue) {
+                                            if (newValue != null) {
+                                              setState(() {
+                                                selectedCategories[index] = newValue;
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                          controlAffinity: ListTileControlAffinity.leading,
                         );
                       },
                     ),
