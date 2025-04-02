@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 import 'CategoryExpensMenu.dart';
+import 'CategoryDetailScreen.dart';
+
+// Create a class to manage categories that can be accessed from anywhere
+class CategoryManager {
+  static final CategoryManager _instance = CategoryManager._internal();
+  
+  factory CategoryManager() {
+    return _instance;
+  }
+  
+  CategoryManager._internal();
+  
+  // List of category names
+  final List<String> categoryNames = [
+    'Food', 'Transport', 'Entertainment', 'Shopping', 'Bills', 'Other'
+  ];
+  
+  // Map of category icons
+  final Map<String, IconData> categoryIcons = {
+    'Food': Icons.fastfood,
+    'Transport': Icons.directions_car,
+    'Entertainment': Icons.movie,
+    'Shopping': Icons.shopping_bag,
+    'Bills': Icons.receipt,
+    'Other': Icons.more_horiz,
+  };
+  
+  // Get icon for a category
+  IconData getIconForCategory(String category) {
+    return categoryIcons[category] ?? Icons.category;
+  }
+}
 
 class Categories extends StatefulWidget {
   const Categories({super.key});
@@ -10,10 +42,7 @@ class Categories extends StatefulWidget {
 
 class _CategoriesState extends State<Categories> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  List<String> categoryNames = [
-    'Food', 'Transport', 'Entertainment', 'Shopping', 'Bills', 'Other'
-  ];
+  final CategoryManager categoryManager = CategoryManager();
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +92,21 @@ class _CategoriesState extends State<Categories> {
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
                   ),
-                  itemCount: categoryNames.length,
+                  itemCount: categoryManager.categoryNames.length,
                   itemBuilder: (context, index) {
+                    final categoryName = categoryManager.categoryNames[index];
                     return GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        // Navigate to the category detail screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CategoryDetailScreen(
+                              categoryName: categoryName,
+                            ),
+                          ),
+                        );
+                      },
                       child: Column(
                         children: [
                           Container(
@@ -76,11 +116,15 @@ class _CategoriesState extends State<Categories> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const FlutterLogo(),
+                            child: Icon(
+                              categoryManager.getIconForCategory(categoryName),
+                              color: const Color(0xFF422655),
+                              size: 40,
+                            ),
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            categoryNames[index],
+                            categoryName,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Color(0xFF422655),

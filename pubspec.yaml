@@ -13,6 +13,10 @@ dependencies:
   image_picker: ^1.0.0
   google_ml_kit: ^0.19.0
   image: ^4.5.3
+  shared_preferences: ^2.2.0
+  google_mlkit_text_recognition: 0.14.0
+  intl: ^0.18.1
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:
@@ -24,7 +28,7 @@ uses-material-design: true
 
 
 assets:
- 
+  - lib/assets/images/
 
 
 flutter_icons:
