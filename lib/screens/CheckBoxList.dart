@@ -231,7 +231,9 @@ class _AndroidCompact2State extends State<AndroidCompact2> {
               
               // Update item
               setState(() {
-                String newItem = "${nameController.text} - ${parsedPrice.toStringAsFixed(2)} ${currencyController.text}";
+                // Make sure parsedPrice is not null by providing a default value
+                final double safePrice = parsedPrice ?? 0.0;
+                String newItem = "${nameController.text} - ${safePrice.toStringAsFixed(2)} ${currencyController.text}";
                 items[index] = newItem;
                 checked[index] = true; // Auto-check edited items
               });
